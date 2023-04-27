@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '../modules/store';
-import { getBillsThunk, updateBillThunk } from '../modules/bills';
+import { addBillThunk, getBillsThunk, updateBillThunk } from '../modules/bills';
 import { TBill, TGetBillsMode } from '../models/TBill';
 import { unwrapResult } from '@reduxjs/toolkit';
 
@@ -22,9 +22,19 @@ const DisplayContainer = () => {
 
 	const onAdd = useCallback(() => {
 		try {
+			dispatch(addBillThunk(bill));
+		} catch (err) {
+			const err_msg = 'ERROR: Error has occured in onAdd(bill)';
+			console.error(err_msg, err);
+			throw err;
+		}
+	}, []);
+
+	const onUpdate = useCallback(() => {
+		try {
 			dispatch(updateBillThunk(bill));
 		} catch (err) {
-			const err_msg = 'ERROR: Error has occured in onAdd(bill) or onUpdate(bill)';
+			const err_msg = 'ERROR: Error has occured in onUpdate(bill)';
 			console.error(err_msg, err);
 			throw err;
 		}
@@ -52,7 +62,7 @@ const DisplayContainer = () => {
 			</button>
 			<button
 				onClick={() => {
-					onAdd();
+					onUpdate();
 				}}>
 				UPDATE
 			</button>

@@ -49,14 +49,18 @@ const getBillsThunk = createAsyncThunk<TBill[], TGetBillsMode, { rejectValue: TT
     }
 });
 
+const addBillThunk = createAsyncThunk<TBill[], TBill, { rejectValue: TThunkError }>('bills/addBillThunk', async (bill, thunkAPI) => {
+    try {
+        await addBill(bill);
+        return [bill];
+    } catch (err) {
+        return thunkAPI.rejectWithValue({ err_msg: 'ERROR: Error occured in addBillThunk()' });
+    }
+})
+
 const updateBillThunk = createAsyncThunk<TBill[], TBill, { rejectValue: TThunkError }>('bills/updateBillThunk', async (bill, thunkAPI) => {
     try {
-        const isExist = await isExistingBill(bill);
-        if (isExist) {
-            await updateBill(bill);
-        } else {
-            await addBill(bill);
-        }
+        await updateBill(bill);
         return [bill];
     } catch (err) {
         return thunkAPI.rejectWithValue({ err_msg: 'ERROR: Error occured in addBillThunk()' });
@@ -83,6 +87,20 @@ const sliceBills = createSlice({
                 state.loading = false;
                 state.error = payload;
             })
+            // addBillThunk Actions
+            .addCase(addBillThunk.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(addBillThunk.fulfilled, (state, { payload }) => {
+                state.loading = false;
+                state.error = null;
+                state.payload = payload;
+            })
+            .addCase(addBillThunk.rejected, (state, { payload }) => {
+                state.loading = false;
+                state.error = payload;
+            })
             // updateBillThunk Actions
             .addCase(updateBillThunk.pending, (state) => {
                 state.loading = true;
@@ -103,4 +121,4 @@ const sliceBills = createSlice({
 const reducerBills = sliceBills.reducer;
 export default reducerBills;
 
-export { getBillsThunk, updateBillThunk };
+export { getBillsThunk, addBillThunk, updateBillThunk };

@@ -1,4 +1,4 @@
-import { DocumentReference, QuerySnapshot, addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { DocumentReference, QuerySnapshot, addDoc, collection, doc, getDoc, getDocs, orderBy, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 import { getBillIndex } from "./firestore-internalData";
 import { TBill } from "../models/TBill";
@@ -79,9 +79,6 @@ export const updateBill = async (updateBillProps: TUpdateBill) => {
     }
 }
 
-
-
-
 /**
  * Get all bills from firestore, return them as a type of TBills[]
  * @return {TBill[]} return bills array
@@ -89,7 +86,8 @@ export const updateBill = async (updateBillProps: TUpdateBill) => {
 export const getBills = async () => {
     try {
         let bills: TBill[] = [];
-        const qrySnapshot = await getDocs(billsCollRef) as QuerySnapshot<TBill>;
+        const qry = query(billsCollRef, orderBy('index'));
+        const qrySnapshot = await getDocs(qry) as QuerySnapshot<TBill>;
         qrySnapshot.forEach(bill => bills.push(bill.data()));
         return bills;
     } catch (err) {
@@ -106,7 +104,7 @@ export const getBills = async () => {
 export const getValidBills = async () => {
     try {
         let bills: TBill[] = [];
-        const qry = query(billsCollRef, where('expired', '==', false));
+        const qry = query(billsCollRef, where('expired', '==', false), orderBy('index'));
         const qrySnapshot = await getDocs(qry) as QuerySnapshot<TBill>;
         qrySnapshot.forEach(bill => bills.push(bill.data()));
         return bills;
@@ -124,7 +122,7 @@ export const getValidBills = async () => {
 export const getExpiredBills = async () => {
     try {
         let bills: TBill[] = [];
-        const qry = query(billsCollRef, where('expired', '==', true));
+        const qry = query(billsCollRef, where('expired', '==', true), orderBy('index'));
         const qrySnapshot = await getDocs(qry) as QuerySnapshot<TBill>;
         qrySnapshot.forEach(bill => bills.push(bill.data()));
         return bills;
