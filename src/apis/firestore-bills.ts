@@ -1,22 +1,9 @@
 import { DocumentReference, QuerySnapshot, addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { firestore } from "./firebase";
 import { getBillIndex } from "./firestore-internalData";
+import { TBill } from "../models/TBill";
 
 // %%% Models %%%
-
-// Type of a bill
-export type TBill = {
-    index: number;
-    title: string;
-    when: string;
-    paidBy: string;
-    cost: number;
-    charge: Record<string, number>[];
-    expired: boolean;
-    createdAt: string;
-    updatedAt: string;
-
-}
 
 // A parameter type for adding a bill
 // 'index' is automatically numbered
@@ -31,6 +18,22 @@ const billsCollRef = collection(firestore, 'Bills');
 
 // %%% Auxiliary APIs %%%
 
+/**
+ * Return the boolean value weather the bill of the index already exists
+ * @param bill the props to add or update the bill
+ * @returns if the bill with the index already exists, return true
+ */
+export const isExistingBill = async (bill: TBill) => {
+    try {
+        const qry = query(billsCollRef, where('index', '==', bill.index));
+        const qrySnapshot = await getDocs(qry);
+        return (qrySnapshot.empty) ? false : true;
+    } catch (err) {
+        const err_msg = "ERROR: Error has occured in isExistingBill(bill)"
+        console.error(err_msg, err);
+        throw err;
+    }
+}
 
 // %%% Primary APIs %%%
 
@@ -38,15 +41,15 @@ const billsCollRef = collection(firestore, 'Bills');
  * Upload a new bill to firestore, log the result on console
  * @param {TAddBill} addBillProps an object to add a new bill
  */
-export const addBill = async (addBillProps: TAddBill) => {
+export const addBill = async (bill: TBill) => {
     try {
         const index = await getBillIndex();
-        const bill: TBill = {
-            ...addBillProps,
+        const newBill: TBill = {
+            ...bill,
             index: index,
             expired: false
         }
-        const res = await addDoc(billsCollRef, bill);
+        const res = await addDoc(billsCollRef, newBill);
         console.log("LOG: Succeed to upload the bill");
         console.log("LOG: DocumentReference=", res);
         return;
@@ -76,11 +79,14 @@ export const updateBill = async (updateBillProps: TUpdateBill) => {
     }
 }
 
+
+
+
 /**
  * Get all bills from firestore, return them as a type of TBills[]
  * @return {TBill[]} return bills array
  */
-export const getAllBills = async () => {
+export const getBills = async () => {
     try {
         let bills: TBill[] = [];
         const qrySnapshot = await getDocs(billsCollRef) as QuerySnapshot<TBill>;
@@ -106,6 +112,24 @@ export const getValidBills = async () => {
         return bills;
     } catch (err) {
         const err_msg = "ERROR: Error has occured in getValidBills()"
+        console.error(err_msg, err);
+        throw err;
+    }
+}
+
+/**
+ * Get All Expired Bills, which means 'expired' is true
+ * @returns {TBill[]} return bills array where 'expired' is true
+ */
+export const getExpiredBills = async () => {
+    try {
+        let bills: TBill[] = [];
+        const qry = query(billsCollRef, where('expired', '==', true));
+        const qrySnapshot = await getDocs(qry) as QuerySnapshot<TBill>;
+        qrySnapshot.forEach(bill => bills.push(bill.data()));
+        return bills;
+    } catch (err) {
+        const err_msg = "ERROR: Error has occured in getExpiredBills()"
         console.error(err_msg, err);
         throw err;
     }

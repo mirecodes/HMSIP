@@ -1,19 +1,9 @@
-// %%% Models %%%
-
 import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import { firestore } from "./firebase";
+import { TUser } from "../models/TUser";
 
-// Type of a user
-export type TUser = {
-    code: string;
-    name: string;
-    imageURL: string;
-    spent: number;
-    owed: number;
-    difference: number;
-    createdAt: string;
-    updatedAt: string;
-}
+
+// %%% Models %%%
 
 // A parameter type for set users
 // The users cannot added or deleted after the creation
