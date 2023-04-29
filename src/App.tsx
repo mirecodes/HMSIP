@@ -1,5 +1,5 @@
 import React from 'react';
-import DisplayContainer from './containers/DisplayContainer';
+import DisplayContainer from './containers/DisplayBillsContainer';
 
 const App = () => {
 	return (

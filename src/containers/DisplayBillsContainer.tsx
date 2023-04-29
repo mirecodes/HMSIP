@@ -1,24 +1,29 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../modules/store';
 import { addBillThunk, getBillsThunk, updateBillThunk } from '../modules/bills';
 import { TBill, TGetBillsMode } from '../models/TBill';
 import { unwrapResult } from '@reduxjs/toolkit';
+import DisplayBills from '../components/DisplayBills';
+import FormBills from '../components/FormBills';
 
 const DisplayContainer = () => {
 	const stateBills = useAppSelector((state) => state.reducerBills);
 	const dispatch = useAppDispatch();
 
-	const bill: TBill = {
-		index: -1,
-		title: '1',
-		when: '1',
-		paidBy: '1',
-		cost: 1,
-		charge: { a: 1 },
-		expired: true,
-		createdAt: '1',
-		updatedAt: '1',
-	};
+	const bill: TBill = useMemo(
+		() => ({
+			index: -1,
+			title: '1',
+			when: '1',
+			paidBy: '1',
+			cost: 1,
+			charge: { a: 1 },
+			expired: true,
+			createdAt: '1',
+			updatedAt: '1',
+		}),
+		[]
+	);
 
 	const onAdd = useCallback(() => {
 		try {
@@ -28,7 +33,7 @@ const DisplayContainer = () => {
 			console.error(err_msg, err);
 			throw err;
 		}
-	}, []);
+	}, [bill, dispatch]);
 
 	const onUpdate = useCallback(() => {
 		try {
@@ -38,22 +43,29 @@ const DisplayContainer = () => {
 			console.error(err_msg, err);
 			throw err;
 		}
-	}, []);
+	}, [bill, dispatch]);
 
-	const getBills = useCallback(async (mode: TGetBillsMode) => {
-		try {
-			const res = await dispatch(getBillsThunk(mode));
-			const bills: TBill[] = unwrapResult(res);
-			console.dir(bills);
-		} catch (err) {
-			const err_msg = 'ERROR: Error has occured in getBills(mode)';
-			console.error(err_msg, err);
-			throw err;
-		}
-	}, []);
+	const getBills = useCallback(
+		async (mode: TGetBillsMode) => {
+			try {
+				const res = await dispatch(getBillsThunk(mode));
+				const bills: TBill[] = unwrapResult(res);
+				console.dir(bills);
+			} catch (err) {
+				const err_msg = 'ERROR: Error has occured in getBills(mode)';
+				console.error(err_msg, err);
+				throw err;
+			}
+		},
+		[dispatch]
+	);
 
 	return (
 		<div>
+			<div>
+				<FormBills></FormBills>
+			</div>
+			<DisplayBills bills={stateBills.payload} />
 			<button
 				onClick={() => {
 					onAdd();
