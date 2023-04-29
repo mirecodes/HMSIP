@@ -3,10 +3,11 @@ import reducerBills from './bills';
 import { TypedUseSelectorHook, useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import thunk from "redux-thunk";
+import reducerUsers from './users';
 
 const store = configureStore({
     reducer: {
-        reducerBills
+        reducerBills, reducerUsers
     },
 });
 

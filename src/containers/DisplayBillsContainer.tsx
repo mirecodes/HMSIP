@@ -6,7 +6,7 @@ import { unwrapResult } from '@reduxjs/toolkit';
 import DisplayBills from '../components/DisplayBills';
 import FormBills from '../components/FormBills';
 
-const DisplayContainer = () => {
+const DisplayBillsContainer = () => {
 	const stateBills = useAppSelector((state) => state.reducerBills);
 	const dispatch = useAppDispatch();
 
@@ -17,7 +17,7 @@ const DisplayContainer = () => {
 			when: '1',
 			paidBy: '1',
 			cost: 1,
-			charge: { a: 1 },
+			charge: { A: 1, B: 1, C: 1, D: 1 },
 			expired: true,
 			createdAt: '1',
 			updatedAt: '1',
@@ -60,11 +60,23 @@ const DisplayContainer = () => {
 		[dispatch]
 	);
 
+	const onSubmit = useCallback(
+		async (bill: TBill) => {
+			try {
+				const res = await dispatch(addBillThunk(bill));
+				const uploaded: TBill[] = unwrapResult(res);
+				console.dir(uploaded);
+			} catch (err) {
+				const err_msg = 'ERROR: Error has occured in onSubmit(bill)';
+				console.error(err_msg, err);
+				throw err;
+			}
+		},
+		[dispatch]
+	);
+
 	return (
 		<div>
-			<div>
-				<FormBills></FormBills>
-			</div>
 			<DisplayBills bills={stateBills.payload} />
 			<button
 				onClick={() => {
@@ -100,4 +112,4 @@ const DisplayContainer = () => {
 	);
 };
 
-export default DisplayContainer;
+export default DisplayBillsContainer;

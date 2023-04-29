@@ -1,10 +1,16 @@
 import React from 'react';
-import DisplayContainer from './containers/DisplayBillsContainer';
+import DisplayBillsContainer from './containers/DisplayBillsContainer';
+import DisplayUsersContainer from './containers/DisplayUsersContainer';
+import DisplayFormContainer from './containers/DisplayFormContainer';
 
 const App = () => {
 	return (
 		<div>
-			<DisplayContainer />
+			<DisplayFormContainer />
+			<hr />
+			<DisplayBillsContainer />
+			<hr />
+			<DisplayUsersContainer />
 		</div>
 	);
 };

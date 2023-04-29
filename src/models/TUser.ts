@@ -1,6 +1,8 @@
 // Type of a user
+export type TUserCode = 'A' | 'B' | 'C' | 'D'
+
 export type TUser = {
-    code: string;
+    code: TUserCode;
     name: string;
     imageURL: string;
     spent: number;

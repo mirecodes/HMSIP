@@ -5,7 +5,13 @@ export type TBill = {
     when: string;
     paidBy: string;
     cost: number;
-    charge: Record<string, number>;
+    charge:
+    {
+        A: number;
+        B: number;
+        C: number;
+        D: number;
+    };
     expired: boolean;
     createdAt: string;
     updatedAt: string;

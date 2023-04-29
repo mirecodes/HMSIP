@@ -104,7 +104,7 @@ export const getBills = async () => {
 export const getValidBills = async () => {
     try {
         let bills: TBill[] = [];
-        const qry = query(billsCollRef, where('expired', '==', false), orderBy('index'));
+        const qry = query(billsCollRef, where('expired', '==', false));
         const qrySnapshot = await getDocs(qry) as QuerySnapshot<TBill>;
         qrySnapshot.forEach(bill => bills.push(bill.data()));
         return bills;
@@ -122,7 +122,7 @@ export const getValidBills = async () => {
 export const getExpiredBills = async () => {
     try {
         let bills: TBill[] = [];
-        const qry = query(billsCollRef, where('expired', '==', true), orderBy('index'));
+        const qry = query(billsCollRef, where('expired', '==', true));
         const qrySnapshot = await getDocs(qry) as QuerySnapshot<TBill>;
         qrySnapshot.forEach(bill => bills.push(bill.data()));
         return bills;
