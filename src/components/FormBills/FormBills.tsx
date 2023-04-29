@@ -45,8 +45,8 @@ const FormBills = () => {
 	);
 
 	const onChangeCheckbox = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			const name = e.target.name;
+		(e: ChangeEvent<HTMLInputElement>) => { 
+			if(e.target.)
 		},
 		[inputBill]
 	);
