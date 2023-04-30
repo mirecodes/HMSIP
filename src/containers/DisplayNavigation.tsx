@@ -8,8 +8,8 @@ const DisplayNavigation = () => {
 		<div>
 			<Navbar bg="dark" variant="dark" expand="sm">
 				<Container fluid>
-					<Navbar.Brand href="/">
-						<img alt="hello?" src="img/hmsip_logo.png" className="d-inline-block align-top" />
+					<Navbar.Brand href="/HMSIP/">
+						<img alt="HMSIP" src={'./img/hmsip_logo.png'} className="d-inline-block align-top" />
 					</Navbar.Brand>
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
 					<Navbar.Collapse id="basic-navbar-nav">
