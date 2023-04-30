@@ -27,13 +27,13 @@ const ControllerContainer = () => {
 	// }, [dispatch, storeBills.payload, storeUsers.payload]);
 
 	return (
-		<BrowserRouter basename={process.env.PUBLIC_URL}>
+		<BrowserRouter>
 			<DisplayNavigation />
 			<Routes>
-				<Route path="/" element={<DisplayUsersContainer />} />
-				<Route path="/form" element={<DisplayFormContainer />} />
-				<Route path="/bills" element={<DisplayBillsContainer />} />
-				<Route path="/details" element={<DisplayDetailsContainer />} />
+				<Route path="/HMSIP" element={<DisplayUsersContainer />} />
+				<Route path="/HMSIP/form" element={<DisplayFormContainer />} />
+				<Route path="/HMSIP/bills" element={<DisplayBillsContainer />} />
+				<Route path="/HMSIP/details" element={<DisplayDetailsContainer />} />
 			</Routes>
 		</BrowserRouter>
 	);

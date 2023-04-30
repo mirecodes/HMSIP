@@ -14,10 +14,10 @@ const DisplayNavigation = () => {
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
 					<Navbar.Collapse id="basic-navbar-nav">
 						<Nav className="me-auto">
-							<Nav.Link href="/">Home</Nav.Link>
-							<Nav.Link href="/form">Form</Nav.Link>
-							<Nav.Link href="/bills">Bills</Nav.Link>
-							<Nav.Link href="/details">Details</Nav.Link>
+							<Nav.Link href="/HMSIP/">Home</Nav.Link>
+							<Nav.Link href="/HMSIP/form">Form</Nav.Link>
+							<Nav.Link href="/HMSIP/bills">Bills</Nav.Link>
+							<Nav.Link href="/HMSIP/details">Details</Nav.Link>
 						</Nav>
 					</Navbar.Collapse>
 				</Container>
