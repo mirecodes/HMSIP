@@ -27,7 +27,7 @@ const ControllerContainer = () => {
 	// }, [dispatch, storeBills.payload, storeUsers.payload]);
 
 	return (
-		<BrowserRouter basename={process.env.REACT_APP_PUBLIC_URL}>
+		<BrowserRouter basename={process.env.PUBLIC_URL}>
 			<DisplayNavigation />
 			<Routes>
 				<Route path="/" element={<DisplayUsersContainer />} />
