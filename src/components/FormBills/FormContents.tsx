@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useCallback, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEvent, useCallback, useState } from 'react';
 import Button from 'react-bootstrap/esm/Button';
 import Form from 'react-bootstrap/esm/Form';
 import InputGroup from 'react-bootstrap/esm/InputGroup';
@@ -85,9 +85,26 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 		(e: ChangeEvent<HTMLInputElement>) => {
 			const name = e.target.name;
 			if (isKeyofStateCharge(name)) {
+				let target: keyof TStateCharge = 'amountA';
+				switch (name) {
+					case 'chargeA':
+						target = 'amountA';
+						break;
+					case 'chargeB':
+						target = 'amountB';
+						break;
+					case 'chargeC':
+						target = 'amountC';
+						break;
+					case 'chargeD':
+						target = 'amountD';
+						break;
+				}
+				const targetAmount = e.target.checked ? stateCharge[target] : 0;
 				const newStateCharge = {
 					...stateCharge,
 					[name]: e.target.checked,
+					[target]: targetAmount,
 				};
 				setStateCharge(newStateCharge);
 			} else {
@@ -111,6 +128,52 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 			}
 		},
 		[stateCharge]
+	);
+
+	const onDivide = useCallback(
+		(e: MouseEvent<HTMLButtonElement>) => {
+			const { chargeA, chargeB, chargeC, chargeD } = stateCharge;
+			const cost = stateInput.cost;
+			const num_members = Number(chargeA) + Number(chargeB) + Number(chargeC) + Number(chargeD);
+
+			if (cost < 1) throw Error('ERROR: Not was the cost offered');
+			if (num_members < 1) throw Error('ERROR: No members are charged');
+
+			const amount = Math.floor(cost / num_members);
+			let remainder = cost % num_members;
+			let amountA = chargeA ? amount + (cost % num_members) : 0;
+			let amountB = chargeB ? amount + (cost % num_members) : 0;
+			let amountC = chargeC ? amount + (cost % num_members) : 0;
+			let amountD = chargeD ? amount + (cost % num_members) : 0;
+
+			if (remainder > 0 && chargeA) {
+				amountA += 1;
+				remainder -= 1;
+			}
+			if (remainder > 0 && chargeB) {
+				amountB += 1;
+				remainder -= 1;
+			}
+			if (remainder > 0 && chargeC) {
+				amountC += 1;
+				remainder -= 1;
+			}
+			if (remainder > 0 && chargeD) {
+				amountD += 1;
+				remainder -= 1;
+			}
+
+			const newStateCharge = {
+				...stateCharge,
+				amountA,
+				amountB,
+				amountC,
+				amountD,
+			};
+
+			setStateCharge(newStateCharge);
+		},
+		[stateCharge, stateInput.cost]
 	);
 
 	const onSelect = useCallback(
@@ -137,7 +200,7 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 			if (name === 'expired') {
 				const newStateInput = {
 					...stateInput,
-					expired: !stateInput.expired,
+					[name]: e.target.checked,
 				};
 				setStateInput(newStateInput);
 			} else {
@@ -178,7 +241,7 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 				await onAddBill(bill);
 			}
 		},
-		[stateCharge, stateInput]
+		[onAddBill, stateCharge, stateInput]
 	);
 
 	return (
@@ -288,7 +351,9 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 				</InputGroup>
 				<Form.Label>Divide Equally: Divide the bill equally with all charged members</Form.Label>
 				<InputGroup>
-					<Button variant="outline-primary">DIVIDE</Button>
+					<Button variant="outline-primary" onClick={onDivide}>
+						DIVIDE
+					</Button>
 				</InputGroup>
 			</Form.Group>
 			<hr />
