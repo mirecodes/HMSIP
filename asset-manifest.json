@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/HMSIP/static/js/main.85c5591a.js",
+    "main.js": "/HMSIP/static/js/main.1aebccba.js",
     "index.html": "/HMSIP/index.html",
-    "main.85c5591a.js.map": "/HMSIP/static/js/main.85c5591a.js.map"
+    "main.1aebccba.js.map": "/HMSIP/static/js/main.1aebccba.js.map"
   },
   "entrypoints": [
-    "static/js/main.85c5591a.js"
+    "static/js/main.1aebccba.js"
   ]
 }
