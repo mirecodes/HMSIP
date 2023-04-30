@@ -3,7 +3,7 @@ import Container from 'react-bootstrap/esm/Container';
 import Nav from 'react-bootstrap/esm/Nav';
 import Navbar from 'react-bootstrap/esm/Navbar';
 
-const NavigationBar = () => {
+const DisplayNavigation = () => {
 	return (
 		<div>
 			<Navbar bg="dark" variant="dark" expand="sm">
@@ -17,6 +17,7 @@ const NavigationBar = () => {
 							<Nav.Link href="/">Home</Nav.Link>
 							<Nav.Link href="/form">Form</Nav.Link>
 							<Nav.Link href="/bills">Bills</Nav.Link>
+							<Nav.Link href="/details">Details</Nav.Link>
 						</Nav>
 					</Navbar.Collapse>
 				</Container>
@@ -25,4 +26,4 @@ const NavigationBar = () => {
 	);
 };
 
-export default NavigationBar;
+export default DisplayNavigation;

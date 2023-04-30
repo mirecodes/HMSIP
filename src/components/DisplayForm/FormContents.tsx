@@ -3,6 +3,7 @@ import Button from 'react-bootstrap/esm/Button';
 import Form from 'react-bootstrap/esm/Form';
 import InputGroup from 'react-bootstrap/esm/InputGroup';
 import { TBill } from '../../models/TBill';
+import ModalComponent, { TModalControl, initialStateModal } from '../Modal/ModalComponent';
 
 // %%% Models %%%
 type TStateInput = {
@@ -63,6 +64,29 @@ type TFormContentsProps = {
 const FormContents = ({ onAddBill }: TFormContentsProps) => {
 	const [stateInput, setStateInput] = useState<TStateInput>(initialStateInput);
 	const [stateCharge, setStateCharge] = useState<TStateCharge>(initialStateCharge);
+	const [stateModal, setStateModal] = useState<TModalControl>(initialStateModal);
+
+	const handleShow = useCallback(() => {
+		setStateModal({
+			...stateModal,
+			show: true,
+		});
+	}, [stateModal]);
+
+	const handleClose = useCallback(() => {
+		setStateModal({
+			...stateModal,
+			show: false,
+		});
+	}, [stateModal]);
+
+	const callUpModal = useCallback((heading: string, body: string) => {
+		setStateModal({
+			heading,
+			body,
+			show: true,
+		});
+	}, []);
 
 	const onChangeText = useCallback(
 		(e: ChangeEvent<FormControlElement>) => {
@@ -136,8 +160,8 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 			const cost = stateInput.cost;
 			const num_members = Number(chargeA) + Number(chargeB) + Number(chargeC) + Number(chargeD);
 
-			if (cost < 1) throw Error('ERROR: Not was the cost offered');
-			if (num_members < 1) throw Error('ERROR: No members are charged');
+			if (cost < 1) callUpModal('ERROR', 'Not was the cost offered');
+			if (num_members < 1) callUpModal('ERROR', 'The charged members have to be at least 1');
 
 			const amount = Math.floor(cost / num_members);
 			let remainder = cost % num_members;
@@ -173,7 +197,7 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 
 			setStateCharge(newStateCharge);
 		},
-		[stateCharge, stateInput.cost]
+		[callUpModal, stateCharge, stateInput.cost]
 	);
 
 	const onSelect = useCallback(
@@ -245,136 +269,145 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 	);
 
 	return (
-		<Form onSubmit={onSubmit}>
-			<Form.Group className="mb-3">
-				<Form.Label>TITLE: Brief explanation of payment</Form.Label>
-				<Form.Control
-					name="title"
-					value={stateInput.title}
-					onChange={onChangeText}
-					placeholder="e.g. Shinkansen Express Ticket"
-				/>
-			</Form.Group>
-			<hr />
-			<Form.Group className="mb-3">
-				<Form.Label>WHEN: The time when of the payment</Form.Label>
-				<Form.Control
-					name="when"
-					value={stateInput.when}
-					onChange={onChangeText}
-					placeholder="e.g. 2023-04-30"
-				/>
-			</Form.Group>
-			<hr />
-			<Form.Group className="mb-3">
-				<Form.Label>WHO: Who paid instead</Form.Label>
-				<Form.Select name="paidBy" onChange={onSelect} value={stateInput.paidBy}>
-					<option value="">Open this select menu</option>
-					<option value="A">One</option>
-					<option value="B">Two</option>
-					<option value="C">Three</option>
-					<option value="D">Four Bubble</option>
-				</Form.Select>
-			</Form.Group>
-			<hr />
-			<Form.Group className="mb-3">
-				<Form.Label>AMOUNT: The price you paid</Form.Label>
-				<InputGroup>
-					<InputGroup.Text>￦</InputGroup.Text>
+		<div>
+			<ModalComponent
+				heading={stateModal.heading}
+				body={stateModal.body}
+				handleShow={handleShow}
+				handleClose={handleClose}
+				show={stateModal.show}
+			/>
+			<Form onSubmit={onSubmit}>
+				<Form.Group className="mb-3">
+					<Form.Label>TITLE: Brief explanation of payment</Form.Label>
 					<Form.Control
-						type="number"
-						name="cost"
-						value={stateInput.cost}
+						name="title"
+						value={stateInput.title}
 						onChange={onChangeText}
-						placeholder="e.g. 50000"
+						placeholder="e.g. Shinkansen Express Ticket"
 					/>
-				</InputGroup>
-			</Form.Group>
-			<hr />
-			<Form.Group className="mb-3">
-				<Form.Label>CHARGE: Check who you wants to get returned from</Form.Label>
-				<InputGroup className="mb-3">
-					<InputGroup.Checkbox
-						name="chargeA"
-						checked={stateCharge.chargeA}
-						onChange={onChangeCharge}></InputGroup.Checkbox>
-					<InputGroup.Text>charge A</InputGroup.Text>
+				</Form.Group>
+				<hr />
+				<Form.Group className="mb-3">
+					<Form.Label>WHEN: The time when of the payment</Form.Label>
 					<Form.Control
-						name="amountA"
-						disabled={!stateCharge.chargeA}
-						value={stateCharge.amountA}
-						onChange={onChangeAmount}
-						placeholder="e.g. 20000"
+						name="when"
+						value={stateInput.when}
+						onChange={onChangeText}
+						placeholder="e.g. 2023-04-30"
 					/>
-				</InputGroup>
-				<InputGroup className="mb-3">
-					<InputGroup.Checkbox
-						name="chargeB"
-						checked={stateCharge.chargeB}
-						onChange={onChangeCharge}></InputGroup.Checkbox>
-					<InputGroup.Text>charge B</InputGroup.Text>
-					<Form.Control
-						name="amountB"
-						disabled={!stateCharge.chargeB}
-						value={stateCharge.amountB}
-						onChange={onChangeAmount}
-						placeholder="e.g. 15000"
-					/>
-				</InputGroup>
-				<InputGroup className="mb-3">
-					<InputGroup.Checkbox
-						name="chargeC"
-						checked={stateCharge.chargeC}
-						onChange={onChangeCharge}></InputGroup.Checkbox>
-					<InputGroup.Text>charge C</InputGroup.Text>
-					<Form.Control
-						name="amountC"
-						disabled={!stateCharge.chargeC}
-						value={stateCharge.amountC}
-						onChange={onChangeAmount}
-						placeholder="e.g. 10000"
-					/>
-				</InputGroup>
-				<InputGroup className="mb-3">
-					<InputGroup.Checkbox
-						name="chargeD"
-						checked={stateCharge.chargeD}
-						onChange={onChangeCharge}></InputGroup.Checkbox>
-					<InputGroup.Text>charge D</InputGroup.Text>
-					<Form.Control
-						name="amountD"
-						disabled={!stateCharge.chargeD}
-						value={stateCharge.amountD}
-						onChange={onChangeAmount}
-						placeholder="e.g. 5000"
-					/>
-				</InputGroup>
-				<Form.Label>Divide Equally: Divide the bill equally with all charged members</Form.Label>
-				<InputGroup>
-					<Button variant="outline-primary" onClick={onDivide}>
-						DIVIDE
-					</Button>
-				</InputGroup>
-			</Form.Group>
-			<hr />
-			<Form.Group className="mb-3">
-				<Form.Label>EXPIRED: Check if this bill was already paid</Form.Label>
-				<InputGroup>
-					<InputGroup.Checkbox name="expired" checked={stateInput.expired} onChange={onChangeExpiry} />
-					<Form.Control
-						readOnly
-						value={
-							stateInput.expired
-								? 'This bill was already paid'
-								: 'This bill will charge the chosen members'
-						}
-					/>
-				</InputGroup>
-			</Form.Group>
-			<Button name="submit" variant="primary" type="submit">
-				SUBMIT
-			</Button>
-		</Form>
+				</Form.Group>
+				<hr />
+				<Form.Group className="mb-3">
+					<Form.Label>WHO: Who paid instead</Form.Label>
+					<Form.Select name="paidBy" onChange={onSelect} value={stateInput.paidBy}>
+						<option value="">Open this select menu</option>
+						<option value="A">One</option>
+						<option value="B">Two</option>
+						<option value="C">Three</option>
+						<option value="D">Four Bubble</option>
+					</Form.Select>
+				</Form.Group>
+				<hr />
+				<Form.Group className="mb-3">
+					<Form.Label>AMOUNT: The price you paid</Form.Label>
+					<InputGroup>
+						<InputGroup.Text>￦</InputGroup.Text>
+						<Form.Control
+							type="number"
+							name="cost"
+							value={stateInput.cost}
+							onChange={onChangeText}
+							placeholder="e.g. 50000"
+						/>
+					</InputGroup>
+				</Form.Group>
+				<hr />
+				<Form.Group className="mb-3">
+					<Form.Label>CHARGE: Check who you wants to get returned from</Form.Label>
+					<InputGroup className="mb-3">
+						<InputGroup.Checkbox
+							name="chargeA"
+							checked={stateCharge.chargeA}
+							onChange={onChangeCharge}></InputGroup.Checkbox>
+						<InputGroup.Text>charge A</InputGroup.Text>
+						<Form.Control
+							name="amountA"
+							disabled={!stateCharge.chargeA}
+							value={stateCharge.amountA}
+							onChange={onChangeAmount}
+							placeholder="e.g. 20000"
+						/>
+					</InputGroup>
+					<InputGroup className="mb-3">
+						<InputGroup.Checkbox
+							name="chargeB"
+							checked={stateCharge.chargeB}
+							onChange={onChangeCharge}></InputGroup.Checkbox>
+						<InputGroup.Text>charge B</InputGroup.Text>
+						<Form.Control
+							name="amountB"
+							disabled={!stateCharge.chargeB}
+							value={stateCharge.amountB}
+							onChange={onChangeAmount}
+							placeholder="e.g. 15000"
+						/>
+					</InputGroup>
+					<InputGroup className="mb-3">
+						<InputGroup.Checkbox
+							name="chargeC"
+							checked={stateCharge.chargeC}
+							onChange={onChangeCharge}></InputGroup.Checkbox>
+						<InputGroup.Text>charge C</InputGroup.Text>
+						<Form.Control
+							name="amountC"
+							disabled={!stateCharge.chargeC}
+							value={stateCharge.amountC}
+							onChange={onChangeAmount}
+							placeholder="e.g. 10000"
+						/>
+					</InputGroup>
+					<InputGroup className="mb-3">
+						<InputGroup.Checkbox
+							name="chargeD"
+							checked={stateCharge.chargeD}
+							onChange={onChangeCharge}></InputGroup.Checkbox>
+						<InputGroup.Text>charge D</InputGroup.Text>
+						<Form.Control
+							name="amountD"
+							disabled={!stateCharge.chargeD}
+							value={stateCharge.amountD}
+							onChange={onChangeAmount}
+							placeholder="e.g. 5000"
+						/>
+					</InputGroup>
+					<Form.Label>Divide Equally: Divide the bill equally with all charged members</Form.Label>
+					<InputGroup>
+						<Button variant="outline-primary" onClick={onDivide}>
+							DIVIDE
+						</Button>
+					</InputGroup>
+				</Form.Group>
+				<hr />
+				<Form.Group className="mb-3">
+					<Form.Label>EXPIRED: Check if this bill was already paid</Form.Label>
+					<InputGroup>
+						<InputGroup.Checkbox name="expired" checked={stateInput.expired} onChange={onChangeExpiry} />
+						<Form.Control
+							readOnly
+							value={
+								stateInput.expired
+									? 'This bill was already paid'
+									: 'This bill will charge the chosen members'
+							}
+						/>
+					</InputGroup>
+				</Form.Group>
+				<Button name="submit" variant="primary" type="submit">
+					SUBMIT
+				</Button>
+			</Form>
+		</div>
 	);
 };
 

@@ -1,113 +1,51 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../modules/store';
-import { addBillThunk, getBillsThunk, updateBillThunk } from '../modules/bills';
-import { TBill, TGetBillsMode } from '../models/TBill';
-import { unwrapResult } from '@reduxjs/toolkit';
-import DisplayBills from '../components/DisplayBills';
-import FormBills from '../components/FormBills';
+import { getBillsThunk } from '../modules/bills';
+import BillsFrame from '../components/DisplayBills/BillsFrame';
+import { TBill } from '../models/TBill';
+import { TUser } from '../models/TUser';
+import { getUsersThunk } from '../modules/users';
 
 const DisplayBillsContainer = () => {
-	const stateBills = useAppSelector((state) => state.reducerBills);
+	const storeUsers = useAppSelector((state) => state.reducerUsers);
+	const storeBills = useAppSelector((state) => state.reducerBills);
 	const dispatch = useAppDispatch();
 
-	const bill: TBill = useMemo(
-		() => ({
-			index: -1,
-			title: '1',
-			when: '1',
-			paidBy: '1',
-			cost: 1,
-			charge: { A: 1, B: 1, C: 1, D: 1 },
-			expired: true,
-			createdAt: '1',
-			updatedAt: '1',
-		}),
-		[]
-	);
+	const [stateBills, setStateBills] = useState<TBill[]>([]);
+	const [stateUsers, setStateUsers] = useState<TUser[]>([]);
 
-	const onAdd = useCallback(() => {
-		try {
-			dispatch(addBillThunk(bill));
-		} catch (err) {
-			const err_msg = 'ERROR: Error has occured in onAdd(bill)';
-			console.error(err_msg, err);
-			throw err;
+	// Call data of all users, bills
+	useEffect(() => {
+		async function primitiveCall() {
+			await dispatch(getUsersThunk());
+			await dispatch(getBillsThunk('all'));
 		}
-	}, [bill, dispatch]);
+		primitiveCall();
+		console.log('here');
+	}, [dispatch]);
 
-	const onUpdate = useCallback(() => {
-		try {
-			dispatch(updateBillThunk(bill));
-		} catch (err) {
-			const err_msg = 'ERROR: Error has occured in onUpdate(bill)';
-			console.error(err_msg, err);
-			throw err;
+	// Update users, bills when each store is updated
+	useEffect(() => {
+		async function loadBills() {
+			setStateBills(storeBills.payload);
 		}
-	}, [bill, dispatch]);
+		loadBills();
+	}, [dispatch, storeBills.payload]);
 
-	const getBills = useCallback(
-		async (mode: TGetBillsMode) => {
-			try {
-				const res = await dispatch(getBillsThunk(mode));
-				const bills: TBill[] = unwrapResult(res);
-				console.dir(bills);
-			} catch (err) {
-				const err_msg = 'ERROR: Error has occured in getBills(mode)';
-				console.error(err_msg, err);
-				throw err;
-			}
-		},
-		[dispatch]
-	);
-
-	const onSubmit = useCallback(
-		async (bill: TBill) => {
-			try {
-				const res = await dispatch(addBillThunk(bill));
-				const uploaded: TBill[] = unwrapResult(res);
-				console.dir(uploaded);
-			} catch (err) {
-				const err_msg = 'ERROR: Error has occured in onSubmit(bill)';
-				console.error(err_msg, err);
-				throw err;
-			}
-		},
-		[dispatch]
-	);
+	useEffect(() => {
+		async function loadUsers() {
+			setStateUsers(storeUsers.payload);
+		}
+		loadUsers();
+	}, [dispatch, storeUsers.payload]);
 
 	return (
 		<div>
-			<DisplayBills bills={stateBills.payload} />
-			<button
-				onClick={() => {
-					onAdd();
-				}}>
-				ADD
-			</button>
-			<button
-				onClick={() => {
-					onUpdate();
-				}}>
-				UPDATE
-			</button>
-			<button
-				onClick={() => {
-					getBills('all');
-				}}>
-				ALL
-			</button>
-			<button
-				onClick={() => {
-					getBills('valid');
-				}}>
-				VALID
-			</button>
-			<button
-				onClick={() => {
-					getBills('expired');
-				}}>
-				EXPIRED
-			</button>
+			{storeBills.loading || storeUsers.loading ? (
+				'loading'
+			) : (
+				<BillsFrame users={stateUsers} bills={stateBills} />
+			)}
 		</div>
 	);
 };

@@ -7,7 +7,7 @@ type TDisplayBillsProps = {
 	bills: TBill[];
 };
 
-const DisplayBills = ({ bills }: TDisplayBillsProps) => {
+const DisplayDetails = ({ bills }: TDisplayBillsProps) => {
 	return (
 		<div>
 			<TableBills bills={bills} />
@@ -15,4 +15,4 @@ const DisplayBills = ({ bills }: TDisplayBillsProps) => {
 	);
 };
 
-export default DisplayBills;
+export default DisplayDetails;

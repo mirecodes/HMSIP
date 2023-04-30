@@ -2,6 +2,18 @@ import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
+export type TModalControl = {
+	show: boolean;
+	heading: string;
+	body: string;
+};
+
+export const initialStateModal = {
+	show: false,
+	heading: '',
+	body: '',
+};
+
 type TModalComponentProps = {
 	heading: string;
 	body: string;
