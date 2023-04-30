@@ -3,8 +3,7 @@ import { useAppDispatch, useAppSelector } from '../modules/store';
 import { addBillThunk, getBillsThunk, updateBillThunk } from '../modules/bills';
 import { TBill, TGetBillsMode } from '../models/TBill';
 import { unwrapResult } from '@reduxjs/toolkit';
-import DisplayBills from '../components/DisplayBills';
-import FormBills from '../components/FormBills';
+import FormFrame from '../components/FormBills/FormFrame';
 
 const DisplayFormContainer = () => {
 	const stateBills = useAppSelector((state) => state.reducerBills);
@@ -27,7 +26,7 @@ const DisplayFormContainer = () => {
 
 	return (
 		<div>
-			<FormBills onAddBill={onAddBill} />
+			<FormFrame onAddBill={onAddBill} />
 		</div>
 	);
 };

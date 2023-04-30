@@ -1,3 +1,3 @@
-import FormBills from "./FormBills";
+import FormContents from "./FormContents"
 
-export default FormBills;
+export default FormContents;
