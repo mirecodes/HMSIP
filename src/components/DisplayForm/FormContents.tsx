@@ -1,11 +1,17 @@
-import { ChangeEvent, FormEvent, MouseEvent, useCallback, useState } from 'react';
+import { ChangeEvent, FormEvent, MouseEvent, useCallback, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/esm/Button';
 import Form from 'react-bootstrap/esm/Form';
 import InputGroup from 'react-bootstrap/esm/InputGroup';
 import { TBill } from '../../models/TBill';
 import ModalComponent, { TModalControl, initialStateModal } from '../Modal/ModalComponent';
+import { TUser, TUserCode } from '../../models/TUser';
 
 // %%% Models %%%
+
+// Undefined in bootstrap, but required type
+type FormControlElement = HTMLInputElement | HTMLTextAreaElement;
+
+// State for 1-dimentional form data
 type TStateInput = {
 	index: number;
 	title: string;
@@ -24,6 +30,7 @@ const initialStateInput: TStateInput = {
 	expired: false,
 };
 
+// State for chargement of users
 type TStateCharge = {
 	chargeA: boolean;
 	chargeB: boolean;
@@ -46,8 +53,6 @@ const initialStateCharge: TStateCharge = {
 	amountD: 0,
 };
 
-type FormControlElement = HTMLInputElement | HTMLTextAreaElement;
-
 // %%% Type Checking %%%
 const isKeyofStateInput = (property: string): property is keyof TStateInput => {
 	return true;
@@ -57,15 +62,19 @@ const isKeyofStateCharge = (property: string): property is keyof TStateCharge =>
 	return true;
 };
 
+// %%% Props %%%
 type TFormContentsProps = {
-	onAddBill: (bill: TBill) => void;
+	users: TUser[];
+	addBill: (bill: TBill) => void;
 };
 
-const FormContents = ({ onAddBill }: TFormContentsProps) => {
+// %%% Reducer %%%
+const FormContents = ({ users, addBill }: TFormContentsProps) => {
+	const [stateModal, setStateModal] = useState<TModalControl>(initialStateModal);
 	const [stateInput, setStateInput] = useState<TStateInput>(initialStateInput);
 	const [stateCharge, setStateCharge] = useState<TStateCharge>(initialStateCharge);
-	const [stateModal, setStateModal] = useState<TModalControl>(initialStateModal);
 
+	// Functions related to modal
 	const handleShow = useCallback(() => {
 		setStateModal({
 			...stateModal,
@@ -88,6 +97,29 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 		});
 	}, []);
 
+	// Functions on building users dictionary
+	const findName = useCallback((code: TUserCode, users: TUser[]) => {
+		console.dir(users);
+		if (users.length > 0) {
+			const res = users.filter((user) => user.code === code);
+			console.dir(res);
+			return res[0].name;
+		} else {
+			return code;
+		}
+	}, []);
+
+	const dictUsers: Record<TUserCode, string> = useMemo(
+		() => ({
+			A: findName('A', users),
+			B: findName('B', users),
+			C: findName('C', users),
+			D: findName('D', users),
+		}),
+		[findName, users]
+	);
+
+	// Functions on Change Event
 	const onChangeText = useCallback(
 		(e: ChangeEvent<FormControlElement>) => {
 			const name = e.target.name;
@@ -262,10 +294,10 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 					createdAt: dateString,
 					updatedAt: dateString,
 				};
-				await onAddBill(bill);
+				await addBill(bill);
 			}
 		},
-		[onAddBill, stateCharge, stateInput]
+		[addBill, stateCharge, stateInput]
 	);
 
 	return (
@@ -302,10 +334,10 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 					<Form.Label>WHO: Who paid instead</Form.Label>
 					<Form.Select name="paidBy" onChange={onSelect} value={stateInput.paidBy}>
 						<option value="">Open this select menu</option>
-						<option value="A">One</option>
-						<option value="B">Two</option>
-						<option value="C">Three</option>
-						<option value="D">Four Bubble</option>
+						<option value="A">{dictUsers['A']}</option>
+						<option value="B">{dictUsers['B']}</option>
+						<option value="C">{dictUsers['C']}</option>
+						<option value="D">{dictUsers['D']}</option>
 					</Form.Select>
 				</Form.Group>
 				<hr />
@@ -330,7 +362,11 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 							name="chargeA"
 							checked={stateCharge.chargeA}
 							onChange={onChangeCharge}></InputGroup.Checkbox>
-						<InputGroup.Text>charge A</InputGroup.Text>
+						<InputGroup.Text>
+							<div className="text-center" style={{ width: '6rem' }}>
+								{dictUsers['A']}
+							</div>
+						</InputGroup.Text>
 						<Form.Control
 							name="amountA"
 							disabled={!stateCharge.chargeA}
@@ -344,7 +380,11 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 							name="chargeB"
 							checked={stateCharge.chargeB}
 							onChange={onChangeCharge}></InputGroup.Checkbox>
-						<InputGroup.Text>charge B</InputGroup.Text>
+						<InputGroup.Text>
+							<div className="text-center" style={{ width: '6rem' }}>
+								{dictUsers['B']}
+							</div>
+						</InputGroup.Text>
 						<Form.Control
 							name="amountB"
 							disabled={!stateCharge.chargeB}
@@ -358,7 +398,11 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 							name="chargeC"
 							checked={stateCharge.chargeC}
 							onChange={onChangeCharge}></InputGroup.Checkbox>
-						<InputGroup.Text>charge C</InputGroup.Text>
+						<InputGroup.Text>
+							<div className="text-center" style={{ width: '6rem' }}>
+								{dictUsers['C']}
+							</div>
+						</InputGroup.Text>
 						<Form.Control
 							name="amountC"
 							disabled={!stateCharge.chargeC}
@@ -372,7 +416,11 @@ const FormContents = ({ onAddBill }: TFormContentsProps) => {
 							name="chargeD"
 							checked={stateCharge.chargeD}
 							onChange={onChangeCharge}></InputGroup.Checkbox>
-						<InputGroup.Text>charge D</InputGroup.Text>
+						<InputGroup.Text>
+							<div className="text-center" style={{ width: '6rem' }}>
+								{dictUsers['D']}
+							</div>
+						</InputGroup.Text>
 						<Form.Control
 							name="amountD"
 							disabled={!stateCharge.chargeD}

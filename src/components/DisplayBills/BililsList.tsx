@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import ListGroup from 'react-bootstrap/esm/ListGroup';
 import { TBill } from '../../models/TBill';
 import ItemDisplayBills from './ItemDisplayBills';
@@ -21,7 +21,7 @@ const BillsList = ({ users, bills }: TBillsListProps) => {
 		});
 	}, [bills]);
 
-	const findName = (code: TUserCode, users: TUser[]) => {
+	const findName = useCallback((code: TUserCode, users: TUser[]) => {
 		console.dir(users);
 		if (users.length > 0) {
 			const res = users.filter((user) => user.code === code);
@@ -30,14 +30,17 @@ const BillsList = ({ users, bills }: TBillsListProps) => {
 		} else {
 			return code;
 		}
-	};
+	}, []);
 
-	const dictUsers: Record<TUserCode, string> = {
-		A: findName('A', users),
-		B: findName('B', users),
-		C: findName('C', users),
-		D: findName('D', users),
-	};
+	const dictUsers: Record<TUserCode, string> = useMemo(
+		() => ({
+			A: findName('A', users),
+			B: findName('B', users),
+			C: findName('C', users),
+			D: findName('D', users),
+		}),
+		[findName, users]
+	);
 
 	return (
 		<ListGroup as="ul" className="list-unstyled">

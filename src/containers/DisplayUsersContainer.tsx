@@ -1,40 +1,35 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../modules/store';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { getUsersThunk, setUsersThunk, updateUserThunk } from '../modules/users';
 import { TUser } from '../models/TUser';
 import { TBill } from '../models/TBill';
 import { getBillsThunk } from '../modules/bills';
+import FrameUsers from '../components/DisplayUsers/FrameUsers';
 
 const DisplayUsersContainer = () => {
-	const stateBills = useAppSelector((state) => state.reducerBills);
-	const stateUsers = useAppSelector((state) => state.reducerUsers);
+	const storeUsers = useAppSelector((state) => state.reducerUsers);
 	const dispatch = useAppDispatch();
 
-	const onGetUsers = useCallback(async () => {
-		try {
-			const res = await dispatch(getUsersThunk());
-			const users: TUser[] = unwrapResult(res);
-			console.dir(users);
-		} catch (err) {
-			const err_msg = 'ERROR: Error has occured in onGetUsers()';
-			console.error(err_msg, err);
-			throw err;
+	const [stateUsers, setStateUsers] = useState<TUser[]>([]);
+
+	// Call data of all users
+	useEffect(() => {
+		async function primitiveCall() {
+			await dispatch(getUsersThunk());
+			await dispatch(getBillsThunk('all'));
 		}
+		primitiveCall();
+		console.log('here');
 	}, [dispatch]);
 
-	const onUpdateUser = useCallback(
-		async (user: TUser) => {
-			try {
-				await dispatch(updateUserThunk(user));
-			} catch (err) {
-				const err_msg = 'ERROR: Error has occured in getUsers()';
-				console.error(err_msg, err);
-				throw err;
-			}
-		},
-		[dispatch]
-	);
+	// Update users when each store is updated
+	useEffect(() => {
+		async function loadUsers() {
+			setStateUsers(storeUsers.payload);
+		}
+		loadUsers();
+	}, [dispatch, storeUsers.payload]);
 
 	const onUpdateUserPayment = useCallback(
 		async (user: TUser) => {
@@ -66,7 +61,7 @@ const DisplayUsersContainer = () => {
 				throw err;
 			}
 		},
-		[dispatch, stateBills.payload]
+		[dispatch]
 	);
 
 	const onUpdateAllPayment = useCallback(async () => {
@@ -82,12 +77,7 @@ const DisplayUsersContainer = () => {
 		}
 	}, [dispatch, onUpdateUserPayment]);
 
-	return (
-		<div>
-			<button onClick={onUpdateAllPayment}>updateAllCharge</button>
-			<button onClick={onGetUsers}>getUsers</button>
-		</div>
-	);
+	return <div>{storeUsers.loading ? 'loading...' : <FrameUsers users={stateUsers} />}</div>;
 };
 
 export default DisplayUsersContainer;

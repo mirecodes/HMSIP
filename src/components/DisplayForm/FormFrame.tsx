@@ -3,12 +3,14 @@ import Card from 'react-bootstrap/esm/Card';
 import Container from 'react-bootstrap/esm/Container';
 import FormContents from './FormContents';
 import { TBill } from '../../models/TBill';
+import { TUser } from '../../models/TUser';
 
 type TFormFrameProps = {
-	onAddBill: (bill: TBill) => void;
+	users: TUser[];
+	addBill: (bill: TBill) => void;
 };
 
-const FormFrame = ({ onAddBill }: TFormFrameProps) => {
+const FormFrame = ({ users, addBill }: TFormFrameProps) => {
 	return (
 		<div>
 			<Container>
@@ -17,7 +19,7 @@ const FormFrame = ({ onAddBill }: TFormFrameProps) => {
 						Register Your Bill🧾
 					</Card.Header>
 					<Card.Body>
-						<FormContents onAddBill={onAddBill} />
+						<FormContents users={users} addBill={addBill} />
 					</Card.Body>
 				</Card>
 			</Container>

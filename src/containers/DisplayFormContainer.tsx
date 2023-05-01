@@ -1,20 +1,39 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../modules/store';
 import { addBillThunk, getBillsThunk, updateBillThunk } from '../modules/bills';
 import { TBill, TGetBillsMode } from '../models/TBill';
 import { unwrapResult } from '@reduxjs/toolkit';
 import FormFrame from '../components/DisplayForm/FormFrame';
+import { TUser } from '../models/TUser';
+import { getUsersThunk } from '../modules/users';
 
 const DisplayFormContainer = () => {
-	const stateBills = useAppSelector((state) => state.reducerBills);
+	const storeUsers = useAppSelector((state) => state.reducerUsers);
 	const dispatch = useAppDispatch();
 
-	const onAddBill = useCallback(
+	const [stateUsers, setStateUsers] = useState<TUser[]>([]);
+
+	// Call data of all users
+	useEffect(() => {
+		async function primitiveCall() {
+			await dispatch(getUsersThunk());
+		}
+		primitiveCall();
+		console.log('here');
+	}, [dispatch]);
+
+	// Update users when each store is updated
+	useEffect(() => {
+		async function loadUsers() {
+			setStateUsers(storeUsers.payload);
+		}
+		loadUsers();
+	}, [dispatch, storeUsers.payload]);
+
+	const addBill = useCallback(
 		async (bill: TBill) => {
 			try {
-				const res = await dispatch(addBillThunk(bill));
-				const uploaded: TBill[] = unwrapResult(res);
-				console.dir(uploaded);
+				await dispatch(addBillThunk(bill));
 			} catch (err) {
 				const err_msg = 'ERROR: Error has occured in onSubmit(bill)';
 				console.error(err_msg, err);
@@ -26,7 +45,7 @@ const DisplayFormContainer = () => {
 
 	return (
 		<div>
-			<FormFrame onAddBill={onAddBill} />
+			<FormFrame users={stateUsers} addBill={addBill} />
 		</div>
 	);
 };
