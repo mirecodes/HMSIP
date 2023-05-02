@@ -12,7 +12,7 @@ import { TUser, TUserCode } from '../../models/TUser';
 type FormControlElement = HTMLInputElement | HTMLTextAreaElement;
 
 // State for 1-dimentional form data
-type TStateInput = {
+export type TStateInput = {
 	index: number;
 	title: string;
 	when: string;
@@ -21,17 +21,8 @@ type TStateInput = {
 	expired: boolean;
 };
 
-const initialStateInput: TStateInput = {
-	index: -1,
-	title: '',
-	when: '',
-	paidBy: '',
-	cost: 0,
-	expired: false,
-};
-
 // State for chargement of users
-type TStateCharge = {
+export type TStateCharge = {
 	chargeA: boolean;
 	chargeB: boolean;
 	chargeC: boolean;
@@ -40,17 +31,6 @@ type TStateCharge = {
 	amountB: number;
 	amountC: number;
 	amountD: number;
-};
-
-const initialStateCharge: TStateCharge = {
-	chargeA: false,
-	chargeB: false,
-	chargeC: false,
-	chargeD: false,
-	amountA: 0,
-	amountB: 0,
-	amountC: 0,
-	amountD: 0,
 };
 
 // %%% Type Checking %%%
@@ -66,36 +46,47 @@ const isKeyofStateCharge = (property: string): property is keyof TStateCharge =>
 type TFormContentsProps = {
 	users: TUser[];
 	addBill: (bill: TBill) => void;
+	initialStateInput: TStateInput;
+	initialStateCharge: TStateCharge;
+	isNewBill: boolean;
+	callUpModal: (heading: string, body: string) => void;
 };
 
 // %%% Reducer %%%
-const FormContents = ({ users, addBill }: TFormContentsProps) => {
-	const [stateModal, setStateModal] = useState<TModalControl>(initialStateModal);
+const FormContents = ({
+	users,
+	addBill,
+	initialStateInput,
+	initialStateCharge,
+	isNewBill,
+	callUpModal,
+}: TFormContentsProps) => {
+	// const [stateModal, setStateModal] = useState<TModalControl>(initialStateModal);
 	const [stateInput, setStateInput] = useState<TStateInput>(initialStateInput);
 	const [stateCharge, setStateCharge] = useState<TStateCharge>(initialStateCharge);
 
 	// Functions related to modal
-	const handleShow = useCallback(() => {
-		setStateModal({
-			...stateModal,
-			show: true,
-		});
-	}, [stateModal]);
+	// const handleShow = useCallback(() => {
+	// 	setStateModal({
+	// 		...stateModal,
+	// 		show: true,
+	// 	});
+	// }, [stateModal]);
 
-	const handleClose = useCallback(() => {
-		setStateModal({
-			...stateModal,
-			show: false,
-		});
-	}, [stateModal]);
+	// const handleClose = useCallback(() => {
+	// 	setStateModal({
+	// 		...stateModal,
+	// 		show: false,
+	// 	});
+	// }, [stateModal]);
 
-	const callUpModal = useCallback((heading: string, body: string) => {
-		setStateModal({
-			heading,
-			body,
-			show: true,
-		});
-	}, []);
+	// const callUpModal = useCallback((heading: string, body: string) => {
+	// 	setStateModal({
+	// 		heading,
+	// 		body,
+	// 		show: true,
+	// 	});
+	// }, []);
 
 	// Functions on building users dictionary
 	const findName = useCallback((code: TUserCode, users: TUser[]) => {
@@ -197,10 +188,10 @@ const FormContents = ({ users, addBill }: TFormContentsProps) => {
 
 			const amount = Math.floor(cost / num_members);
 			let remainder = cost % num_members;
-			let amountA = chargeA ? amount + (cost % num_members) : 0;
-			let amountB = chargeB ? amount + (cost % num_members) : 0;
-			let amountC = chargeC ? amount + (cost % num_members) : 0;
-			let amountD = chargeD ? amount + (cost % num_members) : 0;
+			let amountA = chargeA ? amount : 0;
+			let amountB = chargeB ? amount : 0;
+			let amountC = chargeC ? amount : 0;
+			let amountD = chargeD ? amount : 0;
 
 			if (remainder > 0 && chargeA) {
 				amountA += 1;
@@ -266,50 +257,97 @@ const FormContents = ({ users, addBill }: TFormContentsProps) => {
 		[stateInput]
 	);
 
+	const onCancel = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+		const bill: TBill = {
+			index: -7391,
+			title: '',
+			when: '',
+			paidBy: '',
+			cost: 0,
+			charge: {
+				A: 0,
+				B: 0,
+				C: 0,
+				D: 0,
+			},
+			expired: false,
+			createdAt: '',
+			updatedAt: '',
+		};
+		addBill(bill);
+	}, []);
+
 	const onSubmit = useCallback(
 		async (e: FormEvent<HTMLFormElement>) => {
 			e.preventDefault();
-			const { title, when, paidBy, cost, expired } = stateInput;
+			const { index, title, when, paidBy, cost, expired } = stateInput;
 			const { amountA, amountB, amountC, amountD } = stateCharge;
 			const cond1 = Boolean(title) && Boolean(paidBy) && Boolean(when) && Boolean(cost);
-			const cond2 = Number(cost) === Number(amountA) + Number(amountB) + Number(amountC) + Number(amountD);
-			console.log(cond1, Boolean(title), Boolean(paidBy), Boolean(when), Boolean(cost));
-			console.log(cond2, cost, Number(amountA) + Number(amountB) + Number(amountC) + Number(amountD));
+			if (!cond1) {
+				callUpModal('WARNING', 'You have to fill up all the information');
+				return;
+			}
+			const [coI, amA, amB, amC, amD] = [
+				Number(cost),
+				Number(amountA),
+				Number(amountB),
+				Number(amountC),
+				Number(amountD),
+			];
+			console.log(coI, amA + amB + amC + amD);
+			const cond3 =
+				Number.isInteger(coI) &&
+				Number.isInteger(amA) &&
+				Number.isInteger(amB) &&
+				Number.isInteger(amC) &&
+				Number.isInteger(amD);
+			if (!cond3) {
+				callUpModal('WARNING', 'The least unit of cost should be 1');
+				return;
+			}
+			const cond2 = coI === amA + amB + amC + amD;
+			if (!cond2) {
+				callUpModal('WARNING', 'Cost have to be distributed to all');
+				return;
+			}
 			const date = new Date();
 			const dateString = date.toString();
-			if (cond1 && cond2) {
-				const bill: TBill = {
-					index: -1,
-					title,
-					when,
-					paidBy,
-					cost: cost as number,
-					charge: {
-						A: amountA as number,
-						B: amountB as number,
-						C: amountC as number,
-						D: amountD as number,
-					},
-					expired: expired,
-					createdAt: dateString,
-					updatedAt: dateString,
-				};
-				await addBill(bill);
-			}
+			const bill: TBill = {
+				index,
+				title,
+				when,
+				paidBy,
+				cost: cost as number,
+				charge: {
+					A: amountA as number,
+					B: amountB as number,
+					C: amountC as number,
+					D: amountD as number,
+				},
+				expired: expired,
+				createdAt: dateString,
+				updatedAt: dateString,
+			};
+			addBill(bill);
+			setStateInput(initialStateInput);
+			setStateCharge(initialStateCharge);
+			callUpModal('INFO', 'Your bill was registered successfully');
+			return;
 		},
-		[addBill, stateCharge, stateInput]
+		[addBill, callUpModal, initialStateCharge, initialStateInput, stateCharge, stateInput]
 	);
 
 	return (
 		<div>
-			<ModalComponent
-				heading={stateModal.heading}
-				body={stateModal.body}
-				handleShow={handleShow}
-				handleClose={handleClose}
-				show={stateModal.show}
-			/>
 			<Form onSubmit={onSubmit}>
+				<Form.Group className="mb-3">
+					<Form.Label>INDEX: The order of the bill</Form.Label>
+					<InputGroup>
+						<InputGroup.Text>#</InputGroup.Text>
+						<Form.Control type="number" name="index" value={stateInput.index} disabled />
+					</InputGroup>
+				</Form.Group>
+				<hr />
 				<Form.Group className="mb-3">
 					<Form.Label>TITLE: Brief explanation of payment</Form.Label>
 					<Form.Control
@@ -454,6 +492,11 @@ const FormContents = ({ users, addBill }: TFormContentsProps) => {
 				<Button name="submit" variant="primary" type="submit">
 					SUBMIT
 				</Button>
+				{!isNewBill && (
+					<Button name="cancel" className="mx-2" variant="outline-danger" type="button" onClick={onCancel}>
+						CANCEL
+					</Button>
+				)}
 			</Form>
 		</div>
 	);

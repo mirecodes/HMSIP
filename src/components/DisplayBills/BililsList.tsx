@@ -7,27 +7,26 @@ import { TUser, TUserCode } from '../../models/TUser';
 type TBillsListProps = {
 	users: TUser[];
 	bills: TBill[];
+	startEditMode: (bill: TBill) => void;
+	endEditMode: () => void;
 };
 
-const BillsList = ({ users, bills }: TBillsListProps) => {
-	useEffect(() => {
-		bills.concat().sort((billA, billB) => {
+const BillsList = ({ users, bills, startEditMode, endEditMode }: TBillsListProps) => {
+	const newBills = useMemo(() => {
+		return bills.concat().sort((billA, billB) => {
 			const a = billA.index,
 				b = billB.index;
-			if (a < b) return -1;
-			else if (a === b) return 0;
-			else if (a > b) return 1;
-			else return 0;
+			return b - a;
 		});
 	}, [bills]);
 
 	const findName = useCallback((code: TUserCode, users: TUser[]) => {
-		console.dir(users);
 		if (users.length > 0) {
 			const res = users.filter((user) => user.code === code);
-			console.dir(res);
+			console.log('THIS IS:', users);
 			return res[0].name;
 		} else {
+			console.log('WARNING: Call for a little care for findName Function');
 			return code;
 		}
 	}, []);
@@ -39,13 +38,25 @@ const BillsList = ({ users, bills }: TBillsListProps) => {
 			C: findName('C', users),
 			D: findName('D', users),
 		}),
-		[findName, users]
+		[]
+	);
+
+	const onClickEditMode = useCallback(
+		(bill: TBill) => {
+			startEditMode(bill);
+		},
+		[startEditMode]
 	);
 
 	return (
 		<ListGroup as="ul" className="list-unstyled">
-			{bills.map((bill) => (
-				<ItemDisplayBills dictUsers={dictUsers} bill={bill} />
+			{newBills.map((bill) => (
+				<ItemDisplayBills
+					key={bill.index}
+					dictUsers={dictUsers}
+					bill={bill}
+					onClickEditMode={onClickEditMode}
+				/>
 			))}
 		</ListGroup>
 	);

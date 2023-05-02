@@ -94,7 +94,6 @@ const sliceUsers = createSlice({
             .addCase(updateUserThunk.fulfilled, (state, { payload }) => {
                 state.loading = false;
                 state.error = null;
-                state.payload = payload;
             })
             .addCase(updateUserThunk.rejected, (state, { payload }) => {
                 state.loading = false;

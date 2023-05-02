@@ -12,9 +12,10 @@ type ItemDisplayBillsProps = {
 		D: string;
 	};
 	bill: TBill;
+	onClickEditMode: (bill: TBill) => void;
 };
 
-const ItemDisplayBills = ({ dictUsers, bill }: ItemDisplayBillsProps) => {
+const ItemDisplayBills = ({ dictUsers, bill, onClickEditMode }: ItemDisplayBillsProps) => {
 	const getOwingRelationship = () => {
 		let str = `${dictUsers[bill.paidBy as TUserCode]} >>> `;
 		str = str.concat(bill.charge.A ? dictUsers.A + ', ' : '');
@@ -29,7 +30,10 @@ const ItemDisplayBills = ({ dictUsers, bill }: ItemDisplayBillsProps) => {
 				#{bill.index}
 			</div>
 			<div className="ms-2 me-auto">
-				<div className="fw-bold">{bill.title}</div>
+				<div onClick={() => onClickEditMode(bill)} style={{ cursor: 'pointer' }}>
+					<span className="fw-bold">{bill.title}</span>
+				</div>
+
 				<div className="fw-normal">{getOwingRelationship()}</div>
 				<div className="fw-normal">{bill.when}</div>
 			</div>
